@@ -1,2 +1,2 @@
 # ETL-engine
-This is a repository for an ETL Project using dbt, airflow, PostgreSQL, and Docker.
+![ETL-Engine](./Reporting-Layer/Images/DWH architecture.png)
