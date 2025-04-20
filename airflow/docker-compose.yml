@@ -1,0 +1,88 @@
+services:
+
+  postgres:
+    image: postgres:latest
+    container_name: engine_postgres_db
+    environment:
+      POSTGRES_USER: mohamednasr
+      POSTGRES_PASSWORD: Mohamed01146100160
+      POSTGRES_DB: ETL-Engine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - etl_network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: engine_pgadmin_ui
+    environment:
+      PGADMIN_DEFAULT_EMAIL: engine@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - etl_network
+
+  airflow-init:
+    image: apache/airflow:2.10.4
+    container_name: airflow_init
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    command: bash -c "airflow db init"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+    depends_on:
+      - postgres
+    networks:
+      - etl_network
+
+  airflow-webserver:
+    image: apache/airflow:2.10.4
+    container_name: airflow_web
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "True"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+    ports:
+      - "8080:8080"
+    command: webserver
+    networks:
+      - etl_network
+
+  airflow-scheduler:
+    image: apache/airflow:2.10.4
+    container_name: airflow_scheduler
+    restart: always
+    depends_on:
+      - airflow-webserver
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+    command: scheduler
+    networks:
+      - etl_network
+
+volumes:
+  pgdata:
+
+networks:
+  etl_network:
+    driver: bridge
