@@ -1,2 +1,2 @@
 # ETL-engine
-![ETL-Engine](./Reporting-Layer/Images/DWH architecture.png)
+![DWH Architecture Diagram](Reporting-Layer/Images/DWH-architecture.png)
