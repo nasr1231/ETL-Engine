@@ -64,10 +64,22 @@ services:
       interval: 10s
       timeout: 30s
       retries: 5
+    volumes:
+      - airflow-data:/opt/airflow
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./secrets.env:/opt/airflow/secrets.env
 
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
+    volumes:
+      - airflow-data:/opt/airflow
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./secrets.env:/opt/airflow/secrets.env
 
   airflow-worker:
     <<: *airflow-common
@@ -93,6 +105,7 @@ services:
 
 volumes:
   postgres-data:
+  airflow-data:
 
 networks:
   airflow-network:
