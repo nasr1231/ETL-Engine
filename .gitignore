@@ -1,3 +1,4 @@
 secrets.env
 *.log
 .env
+webserver_config.pys
