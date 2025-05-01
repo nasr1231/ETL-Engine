@@ -43,10 +43,10 @@ def raw_data_insert(table_name,data_frame,connection,engine):
 
 
 def is_processed(conn, file_name):
-    query = text("SELECT 1 FROM processed_files WHERE file_name = :file_name")
+    query = text("SELECT 1 FROM bronze.processed_files WHERE file_name = :file_name")
     result = conn.execute(query, {'file_name': file_name}).fetchone()
     return result is not None
 
 def mark_file_as_processed(conn, file_name):
-    query = text("INSERT INTO processed_files (file_name) VALUES (:file_name)")
+    query = text("INSERT INTO bronze.processed_files (file_name) VALUES (:file_name)")
     conn.execute(query, {'file_name': file_name})
