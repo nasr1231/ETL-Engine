@@ -1,18 +1,45 @@
+x-airflow-common: &airflow-common
+  image: apache/airflow:2.10.4
+  env_file: secrets.env
+  environment:
+    &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow    
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+    AIRFLOW__CORE__TEST_CONNECTION: "Enabled"
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__API__AUTH_BACKENDS: "airflow.api.auth.backend.basic_auth"
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+    - ${AIRFLOW_PROJ_DIR:-.}/Source:/opt/airflow/Source
+    - ${AIRFLOW_PROJ_DIR:-.}/dbt:/opt/airflow/dbt
+  user: "${AIRFLOW_UID:-50000}:0"
+  depends_on:
+    postgres:
+      condition: service_healthy
+  networks:
+    - airflow-network
+
 services:
 
   postgres:
     image: postgres:latest
-    container_name: engine_postgres_db
+    container_name: engine_postgres
     environment:
-      POSTGRES_USER: mohamednasr
-      POSTGRES_PASSWORD: Mohamed01146100160
-      POSTGRES_DB: ETL-Engine
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      retries: 5
     volumes:
-      - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+      - postgres-data:/var/lib/postgresql/data
     networks:
-      - etl_network
+      - airflow-network
 
   pgadmin:
     image: dpage/pgadmin4
@@ -25,64 +52,48 @@ services:
     depends_on:
       - postgres
     networks:
-      - etl_network
-
-  airflow-init:
-    image: apache/airflow:2.10.4
-    container_name: airflow_init
-    environment:
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
-    command: bash -c "airflow db init"
-    volumes:
-      - ./dags:/opt/airflow/dags
-      - ./logs:/opt/airflow/logs
-      - ./plugins:/opt/airflow/plugins
-    depends_on:
-      - postgres
-    networks:
-      - etl_network
+      - airflow-network
 
   airflow-webserver:
-    image: apache/airflow:2.10.4
-    container_name: airflow_web
-    restart: always
-    depends_on:
-      - postgres
-    environment:
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
-      AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "True"
-    volumes:
-      - ./dags:/opt/airflow/dags
-      - ./logs:/opt/airflow/logs
-      - ./plugins:/opt/airflow/plugins
+    <<: *airflow-common
+    command: webserver
     ports:
       - "8080:8080"
-    command: webserver
-    networks:
-      - etl_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:8080/health"]
+      interval: 10s
+      timeout: 30s
+      retries: 5
 
   airflow-scheduler:
-    image: apache/airflow:2.10.4
-    container_name: airflow_scheduler
-    restart: always
-    depends_on:
-      - airflow-webserver
-    environment:
-      AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
-    volumes:
-      - ./dags:/opt/airflow/dags
-      - ./logs:/opt/airflow/logs
-      - ./plugins:/opt/airflow/plugins
+    <<: *airflow-common
     command: scheduler
-    networks:
-      - etl_network
+
+  airflow-worker:
+    <<: *airflow-common
+    command: celery worker
+    environment:
+      <<: *airflow-common-env
+      DUMB_INIT_SETSID: "0"
+
+  airflow-init:
+    <<: *airflow-common
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_DB_MIGRATE: 'true'
+      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
+      _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
+    command: >
+      bash -c "
+      airflow db init &&
+      airflow db upgrade &&
+      airflow users create --username admin --firstname Mohamed --lastname Nasr --role Admin --email admin@admin.com --password admin
+      "
 
 volumes:
-  pgdata:
+  postgres-data:
 
 networks:
-  etl_network:
+  airflow-network:
     driver: bridge
