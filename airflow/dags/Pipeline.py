@@ -81,10 +81,11 @@ default_parameters={
 with DAG(
     dag_id = "sales_pipeline",
     description = "ETL Engine",
+    tags=['data_ingestion', 'sales'],
     default_args=default_parameters,
     start_date= days_ago(1),
-    schedule_interval='*/15 * * * *',
-    catchup=False
+    schedule_interval=None,
+    catchup=False,    
 ) as dag:
     test_connection_task = PythonOperator(
         task_id='test_postgres_conn',
