@@ -11,10 +11,11 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
     AIRFLOW__API__AUTH_BACKENDS: "airflow.api.auth.backend.basic_auth"
   volumes:
+    - airflow-data:/opt/airflow
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
-    - ./plugins:/opt/airflow/plugins
-    - ${AIRFLOW_PROJ_DIR:-.}/Source:/opt/airflow/Source
+    - ./plugins:/opt/airflow/plugins    
+    - ./datasets:/opt/airflow/datasets
     - ${AIRFLOW_PROJ_DIR:-.}/dbt:/opt/airflow/dbt
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
@@ -53,6 +54,8 @@ services:
       - postgres
     networks:
       - airflow-network
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin 
 
   airflow-webserver:
     <<: *airflow-common
@@ -64,22 +67,10 @@ services:
       interval: 10s
       timeout: 30s
       retries: 5
-    volumes:
-      - airflow-data:/opt/airflow
-      - ./dags:/opt/airflow/dags
-      - ./logs:/opt/airflow/logs
-      - ./plugins:/opt/airflow/plugins
-      - ./secrets.env:/opt/airflow/secrets.env
 
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
-    volumes:
-      - airflow-data:/opt/airflow
-      - ./dags:/opt/airflow/dags
-      - ./logs:/opt/airflow/logs
-      - ./plugins:/opt/airflow/plugins
-      - ./secrets.env:/opt/airflow/secrets.env
 
   airflow-worker:
     <<: *airflow-common
@@ -106,6 +97,8 @@ services:
 volumes:
   postgres-data:
   airflow-data:
+  pgadmin-data:
+
 
 networks:
   airflow-network:
