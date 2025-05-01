@@ -4,7 +4,7 @@ import os
 import logging
 
 
-def ingest_data(path, table_name, post_connn, post_engine):
+def data_ingest_func(path, table_name, post_connn, post_engine):
     try:
         file_name = os.path.basename(path)
 
@@ -19,7 +19,7 @@ def ingest_data(path, table_name, post_connn, post_engine):
         raw_data_insert(table_name, df, post_connn, post_engine)
         mark_file_as_processed(post_connn, file_name)
 
-        logging.info(f"successful data ingestion into {table_name}")
+        logging.info(f"{len(df)} rows ingested from {file_name} into {table_name}")                
 
     except Exception as e:
         logging.error(f"Error ingesting data from {file_name} into {table_name}: {e}")

@@ -33,12 +33,12 @@ def raw_data_insert(table_name,data_frame,connection,engine):
 
     if connection:
         try:
-            data_frame.to_sql(name=table_name, con=engine, if_exists='append', index=False)
+            data_frame.to_sql(name=f'bronze.{table_name}', con=engine, if_exists='append', index=False)
             logging.info(f"raw data loaded successfully into {table_name} with {len(data_frame)} rows")
         except SQLAlchemyError as e:
-            logging.info(f"error while load raw data : {e} ")
+            logging.error(f"error while load raw data : {e} ")
     else:
-        logging.info(f"Failed to connect to the database and load data into table {table_name}")
+        logging.error(f"Failed to connect to the database and load data into table {table_name}")
 
 
 
