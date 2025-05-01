@@ -13,8 +13,8 @@ import os
 
 load_dotenv("secrets.env")
 
-crm_path = "/opt/Datasets/source_crm"
-erp_path = "/opt/Datasets/source_erp"
+crm_path = "/opt/airflow/datasets/source_crm"
+erp_path = "/opt/airflow/datasets/source_erp"
 
 def postgres_credentials():
     return {
@@ -43,13 +43,13 @@ def ingest_data_crm():
     logging.info("CRM data ingestion into PostgreSQL!")
     
     crm_data = os.path.join(crm_path, "cust_info.csv")
-    ingest_data(crm_data, "crm_cust_info", Post_conn, Post_engine)
+    data_ingest_func(crm_data, "crm_cust_info", Post_conn, Post_engine)
 
     crm_products = os.path.join(crm_path, "prd_info.csv")
-    ingest_data(crm_products, "crm_prd_info", Post_conn, Post_engine)
+    data_ingest_func(crm_products, "crm_prd_info", Post_conn, Post_engine)
 
     crm_sales = os.path.join(crm_path, "sales_details.csv")
-    ingest_data(crm_sales, "crm_sales_details", Post_conn, Post_engine)
+    data_ingest_func(crm_sales, "crm_sales_details", Post_conn, Post_engine)
 
     close_connection(Post_conn, Post_engine)
 
@@ -61,13 +61,13 @@ def ingest_data_erp():
     logging.info("ERP data ingestion into PostgreSQL!")
 
     erp_cus = os.path.join(erp_path, "CUST_AZ12.csv")
-    ingest_data(erp_cus, "erp_cust_az12", Post_conn, Post_engine)
+    data_ingest_func(erp_cus, "erp_cust_az12", Post_conn, Post_engine)
 
     erp_loc = os.path.join(erp_path, "LOC_A101.csv")
-    ingest_data(erp_cus, "erp_loc_a101", Post_conn, Post_engine)
+    data_ingest_func(erp_loc, "erp_loc_a101", Post_conn, Post_engine)
 
     erp_px = os.path.join(erp_path, "PX_CAT_G1V2.csv")
-    ingest_data(erp_cus, "erp_px_cat_g1v2", Post_conn, Post_engine)
+    data_ingest_func(erp_px, "erp_px_cat_g1v2", Post_conn, Post_engine)
 
     close_connection(Post_conn, Post_engine)
 
@@ -91,14 +91,15 @@ with DAG(
         python_callable = test_postgres_connection
     )
     
-    crm_ingest_data = PythonOperator(
-        task_id="crm_ingest",
-        python_callable = ingest_data_crm
-    )
+    with TaskGroup('ingest_data')as ingest_data:
+        crm_ingest_data = PythonOperator(
+            task_id="crm_ingest",
+            python_callable = ingest_data_crm
+        )
     
-    erp_ingest_data = PythonOperator(
-        task_id="erp_ingest",
-        python_callable = ingest_data_erp
-    )
+        erp_ingest_data = PythonOperator(
+            task_id="erp_ingest",
+            python_callable = ingest_data_erp
+        )            
     
-test_connection_task >> [crm_ingest_data, erp_ingest_data]
+test_connection_task >> ingest_data
