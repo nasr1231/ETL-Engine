@@ -101,6 +101,11 @@ with DAG(
         erp_ingest_data = PythonOperator(
             task_id="erp_ingest",
             python_callable = ingest_data_erp
-        )            
+        )      
+        
+    test_dbt_resources = BashOperator(
+        task_id="dbt_test_connection",
+        bash_command='dbt debug --profiles-dir /home/airflow/dbt --project-dir /home/airflow/dbt/sales'
+    )          
     
-test_connection_task >> ingest_data
+test_connection_task >> ingest_data >> test_dbt_resources
