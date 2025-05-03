@@ -1,5 +1,5 @@
 x-airflow-common: &airflow-common
-  image: apache/airflow:2.10.4
+  image: engine-airflow-custom:latest
   env_file: secrets.env
   environment:
     &airflow-common-env
@@ -59,7 +59,12 @@ services:
 
   airflow-webserver:
     <<: *airflow-common
-    command: webserver
+    command: >
+      bash -c "
+      airflow db init &&
+      airflow db migrate &&
+      airflow webserver
+      "
     ports:
       - "8080:8080"
     healthcheck:
@@ -90,7 +95,7 @@ services:
     command: >
       bash -c "
       airflow db init &&
-      airflow db upgrade &&
+      airflow db migrate &&
       airflow users create --username admin --firstname Mohamed --lastname Nasr --role Admin --email admin@admin.com --password admin
       "
 
@@ -98,7 +103,6 @@ volumes:
   postgres-data:
   airflow-data:
   pgadmin-data:
-
 
 networks:
   airflow-network:
