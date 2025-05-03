@@ -15,8 +15,8 @@ x-airflow-common: &airflow-common
     - ./dags:/opt/airflow/dags
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins    
-    - ./datasets:/opt/airflow/datasets
-    - ${AIRFLOW_PROJ_DIR:-.}/dbt:/opt/airflow/dbt
+    - ./datasets:/opt/airflow/datasets    
+    - ./dbt:/home/airflow/dbt
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     postgres:
@@ -37,6 +37,8 @@ services:
       test: ["CMD", "pg_isready", "-U", "airflow"]
       interval: 5s
       retries: 5
+    ports:
+      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
