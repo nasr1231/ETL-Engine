@@ -15,6 +15,8 @@ def data_ingest_func(path, table_name, post_connn, post_engine):
         logging.info(f"Data ingestion started: {file_name} into {table_name}")
 
         df = pd.read_csv(path)
+        
+        df.columns = df.columns.str.lower()
 
         raw_data_insert(table_name, df, post_connn, post_engine)
         mark_file_as_processed(post_connn, file_name)
