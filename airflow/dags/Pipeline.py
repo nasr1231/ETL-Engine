@@ -1,14 +1,14 @@
 from Scripts.postgres_conn import *
 from Scripts.ingestion_data import *
 from airflow import DAG
+from airflow.decorators import task
 from airflow.utils.dates import days_ago
-from airflow.operators.python_operator import PythonOperator
 from airflow.utils.task_group import TaskGroup
 from airflow.operators.bash import BashOperator
 from dotenv import load_dotenv
-from datetime import datetime, timedelta
 import pandas as pd
 import os
+import logging
 
 
 load_dotenv("secrets.env")
@@ -24,53 +24,6 @@ def postgres_credentials():
         'password': os.getenv("POSTGRES_PASSWORD"),
     }
     
-def test_postgres_connection():
-    postgres_cred = postgres_credentials()
-    conn, engine = postgres_connection(**postgres_cred)
-    if conn is None or engine is None:
-        logging.error("PostgreSQL connection has failed!")
-        raise Exception("PostgreSQL connection could not be established.")
-    
-    logging.info("PostgreSQL connection has successfully established!")
-    close_connection(conn, engine)
-
-def ingest_data_crm():
-    
-    # database connection init
-    postgres_cred = postgres_credentials()
-    Post_conn, Post_engine = postgres_connection(**postgres_cred)
-    
-    logging.info("CRM data ingestion into PostgreSQL!")
-    
-    crm_data = os.path.join(crm_path, "cust_info.csv")
-    data_ingest_func(crm_data, "crm_cust_info", Post_conn, Post_engine)
-
-    crm_products = os.path.join(crm_path, "prd_info.csv")
-    data_ingest_func(crm_products, "crm_prd_info", Post_conn, Post_engine)
-
-    crm_sales = os.path.join(crm_path, "sales_details.csv")
-    data_ingest_func(crm_sales, "crm_sales_details", Post_conn, Post_engine)
-
-    close_connection(Post_conn, Post_engine)
-
-def ingest_data_erp():
-
-    postgres_cred = postgres_credentials()
-    Post_conn, Post_engine = postgres_connection(**postgres_cred)
-    
-    logging.info("ERP data ingestion into PostgreSQL!")
-
-    erp_cus = os.path.join(erp_path, "CUST_AZ12.csv")
-    data_ingest_func(erp_cus, "erp_cust_az12", Post_conn, Post_engine)
-
-    erp_loc = os.path.join(erp_path, "LOC_A101.csv")
-    data_ingest_func(erp_loc, "erp_loc_a101", Post_conn, Post_engine)
-
-    erp_px = os.path.join(erp_path, "PX_CAT_G1V2.csv")
-    data_ingest_func(erp_px, "erp_px_cat_g1v2", Post_conn, Post_engine)
-
-    close_connection(Post_conn, Post_engine)
-
 
 default_parameters={
     'owner': "Mohamed Nasr",
@@ -87,25 +40,62 @@ with DAG(
     schedule_interval=None,
     catchup=False,    
 ) as dag:
-    test_connection_task = PythonOperator(
-        task_id='test_postgres_conn',
-        python_callable = test_postgres_connection
-    )
+    
+    @task()
+    def test_postgres_connection():
+        postgres_cred = postgres_credentials()
+        conn, engine = postgres_connection(**postgres_cred)
+        if conn is None or engine is None:
+            logging.error("PostgreSQL connection has failed!")
+            raise Exception("PostgreSQL connection could not be established.")
+        
+        logging.info("PostgreSQL connection has successfully established!")
+        close_connection(conn, engine)
+        
     
     with TaskGroup('ingest_data') as ingest_data:
-        crm_ingest_data = PythonOperator(
-            task_id="crm_ingest",
-            python_callable = ingest_data_crm
-        )
+        
+        @task
+        def ingest_data_crm():
+            # database connection init
+            postgres_cred = postgres_credentials()
+            Post_conn, Post_engine = postgres_connection(**postgres_cred)
+            
+            logging.info("CRM data ingestion into PostgreSQL!")
+            
+            crm_data = os.path.join(crm_path, "cust_info.csv")
+            data_ingest_func(crm_data, "crm_cust_info", Post_conn, Post_engine)
+
+            crm_products = os.path.join(crm_path, "prd_info.csv")
+            data_ingest_func(crm_products, "crm_prd_info", Post_conn, Post_engine)
+
+            crm_sales = os.path.join(crm_path, "sales_details.csv")
+            data_ingest_func(crm_sales, "crm_sales_details", Post_conn, Post_engine)
+
+            close_connection(Post_conn, Post_engine)
     
-        erp_ingest_data = PythonOperator(
-            task_id="erp_ingest",
-            python_callable = ingest_data_erp
-        )      
+        @task
+        def ingest_data_erp():
+
+            postgres_cred = postgres_credentials()
+            Post_conn, Post_engine = postgres_connection(**postgres_cred)
+            
+            logging.info("ERP data ingestion into PostgreSQL!")
+
+            erp_cus = os.path.join(erp_path, "CUST_AZ12.csv")
+            data_ingest_func(erp_cus, "erp_cust_az12", Post_conn, Post_engine)
+
+            erp_loc = os.path.join(erp_path, "LOC_A101.csv")
+            data_ingest_func(erp_loc, "erp_loc_a101", Post_conn, Post_engine)
+
+            erp_px = os.path.join(erp_path, "PX_CAT_G1V2.csv")
+            data_ingest_func(erp_px, "erp_px_cat_g1v2", Post_conn, Post_engine)
+
+            close_connection(Post_conn, Post_engine) 
         
     test_dbt_resources = BashOperator(
         task_id="dbt_test_connection",
-        bash_command='dbt debug --profiles-dir /home/airflow/dbt --project-dir /home/airflow/dbt/sales'
+        bash_command='dbt debug --profiles-dir /home/airflow/dbt --project-dir /home/airflow/dbt/sales || exit 1'
     )          
     
-test_connection_task >> ingest_data >> test_dbt_resources
+test_postgres_connection >> ingest_data >> test_dbt_resources
