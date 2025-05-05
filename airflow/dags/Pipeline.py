@@ -92,7 +92,7 @@ with DAG(
         python_callable = test_postgres_connection
     )
     
-    with TaskGroup('ingest_data')as ingest_data:
+    with TaskGroup('ingest_data') as ingest_data:
         crm_ingest_data = PythonOperator(
             task_id="crm_ingest",
             python_callable = ingest_data_crm
