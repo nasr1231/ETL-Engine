@@ -52,6 +52,8 @@ with DAG(
         logging.info("PostgreSQL connection has successfully established!")
         close_connection(conn, engine)
         
+    postgres_task = test_postgres_connection()
+        
     
     with TaskGroup('ingest_data') as ingest_data:
         
@@ -92,10 +94,13 @@ with DAG(
             data_ingest_func(erp_px, "erp_px_cat_g1v2", Post_conn, Post_engine)
 
             close_connection(Post_conn, Post_engine) 
+            
+        crm_task = ingest_data_crm()
+        erp_task = ingest_data_erp()
         
     test_dbt_resources = BashOperator(
         task_id="dbt_test_connection",
         bash_command='dbt debug --profiles-dir /home/airflow/dbt --project-dir /home/airflow/dbt/sales || exit 1'
     )          
     
-test_postgres_connection >> ingest_data >> test_dbt_resources
+postgres_task >> [crm_task, erp_task] >> test_dbt_resources
