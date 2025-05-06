@@ -1,0 +1,35 @@
+models:
+  - name: products_info
+    description: "Products info model cleans and transforms product details from bronze layer"
+    columns:
+      - name: prd_id
+        description: "Primary product ID"
+        tests:
+          - unique
+          - not_null
+
+      - name: prd_key
+        description: "Original product key"
+        tests:
+          - not_null
+
+      - name: prd_nm
+        description: "Product name"
+        tests:
+          - not_null
+
+      - name: cateogry_id
+        description: "Extracted category ID"
+        tests:
+          - not_null
+
+      - name: product_id
+        description: "Extracted product ID"
+        tests:
+          - not_null
+
+      - name: prd_line
+        description: "Mapped product line"
+        tests:
+          - accepted_values:
+              values: ['Mountain', 'Road', 'Touring', 'Other Salse', 'N/A']

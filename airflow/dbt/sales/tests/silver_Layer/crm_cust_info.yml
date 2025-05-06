@@ -32,12 +32,16 @@ models:
         datatype: VARCHAR(10)
         tests:
           - not_null
+          - accepted_values:
+              values: ['Single', 'Married', 'N/A']
 
       - name: Gender
         descriptiom: "Checking the Gender (Male, Female, N/A - Not Available..)"
         datatype: VARCHAR(15)
-        tests:
+        tests:        
           - not_null
+          - accepted_values:
+              values: ['Male', 'Female', 'N/A']
 
       - name: cst_create_date
         description: "Creation Date of each customer"
