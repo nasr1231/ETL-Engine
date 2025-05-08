@@ -6,28 +6,28 @@ models:
         description: "Table PK for the customer table"
         datatype: INT
         tests:
-          - Unique
+          - unique
           - not_null
 
-      - name: Firstname
+      - name: firstname
         description: "Checking First Name if null or having white spaces"
         datatype: VARCHAR(50)
         tests:
           - not_null
 
-      - name: Lastname
+      - name: lastname
         description: "Checking Last Name if there are nulls or white spaces"
         datatype: VARCHAR(50)
         test:
           - not_null
 
-      - name: Customer_key
+      - name: customer_key
         description: "Checking If the customer key is null and must be unique"
         datatype: VARCHAR(10)
         tests:        
           - not_null
 
-      - name: Marital_status
+      - name: marital_status
         descriptiom: "Checking the marital status (Single, Married, N/A - Not Available..)"
         datatype: VARCHAR(10)
         tests:
@@ -35,7 +35,7 @@ models:
           - accepted_values:
               values: ['Single', 'Married', 'N/A']
 
-      - name: Gender
+      - name: gender
         descriptiom: "Checking the Gender (Male, Female, N/A - Not Available..)"
         datatype: VARCHAR(15)
         tests:        

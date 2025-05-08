@@ -1,0 +1,35 @@
+models:
+  - name: crm_sales_details
+    description: "Model for cleaned sales details data from bronze layer"
+    columns:      
+      - name: order_number
+        description: "Sales order number"
+        tests:
+          - not_null
+
+      - name: product_key
+        description: "Product key number to be not null"
+        tests:
+          - not_null    
+
+      - name: customer_id
+        description: "Customer identifier"
+        tests:
+          - not_null
+
+      - name: sales_amount
+        description: "cleaned sales amount"
+        tests:
+          - not_null
+
+
+      - name: quantity
+        description: "Sales quantity"
+        tests:
+          - not_null
+
+      - name: unit_price
+        description: "Sales price per unit"
+        tests:
+          - not_null
+

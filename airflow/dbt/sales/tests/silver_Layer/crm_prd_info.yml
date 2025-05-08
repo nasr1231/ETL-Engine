@@ -1,35 +1,43 @@
+
 models:
-  - name: products_info
-    description: "Products info model cleans and transforms product details from bronze layer"
+  - name: crm_prd_info
+    description: "Products info model cleans and transforms product details from the raw data source."
+    config:
+      unique_key: prd_id
+      indexes:
+        - columns: ['prd_id']
+          unique: true      
+
     columns:
-      - name: prd_id
-        description: "Primary product ID"
+      - name: product_id
+        description: "Primary product ID"    
         tests:
           - unique
           - not_null
 
-      - name: prd_key
-        description: "Original product key"
+      - name: category_id
+        description: "Extracted category ID, cleaned from prd_key"        
         tests:
           - not_null
 
-      - name: prd_nm
+      - name: product_name
         description: "Product name"
         tests:
           - not_null
 
-      - name: cateogry_id
-        description: "Extracted category ID"
+      - name: product_cost
+        description: "prd_cost with default value set to 0 if NULL"
+        tests:
+          - not_null     
+
+      - name: product_line
+        description: "Mapped product line, derived from prd_line field"
         tests:
           - not_null
-
-      - name: product_id
-        description: "Extracted product ID"
-        tests:
-          - not_null
-
-      - name: prd_line
-        description: "Mapped product line"
-        tests:
           - accepted_values:
-              values: ['Mountain', 'Road', 'Touring', 'Other Salse', 'N/A']
+              values: ['Mountain', 'Road', 'Touring', 'Other Sales', 'N/A']
+
+      - name: start_date
+        description: "Start date of the product"
+        tests:
+          - not_null
