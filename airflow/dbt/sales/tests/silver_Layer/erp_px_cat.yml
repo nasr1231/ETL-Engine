@@ -1,0 +1,8 @@
+models:
+  - name: erp_px_cat  
+    description: "ERP categories cleaned model"
+    columns:
+      - name: id
+        description: "Unique category ID"
+        tests:          
+          - not_null

@@ -1,0 +1,16 @@
+models:
+  - name: erp_cust_info
+    description: "ERP customers cleaned model"
+    columns:
+      - name: cid
+        description: "Cleaned customer ID"
+        tests:
+          - unique
+          - not_null
+
+      - name: gender
+        description: "Standardized gender"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Female', 'Male', 'N/A']

@@ -1,0 +1,14 @@
+models:
+  - name: erp_customer_locations  
+    description: "ERP locations cleaned model"
+    columns:
+      - name: cid
+        description: "Cleaned customer ID without dashes"
+        tests:
+          - unique
+          - not_null
+
+      - name: cntry
+        description: "Standardized country name"
+        tests:
+          - not_null    
