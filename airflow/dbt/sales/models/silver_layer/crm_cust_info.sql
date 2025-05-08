@@ -1,8 +1,8 @@
 {{ 
     config(        
+        materialized='table',
         unique_key='ID',
         indexes=[{"columns": ['ID'], "unique": true}],
-        target_schema = 'silver',
     ) 
 }}
 
@@ -16,20 +16,19 @@ with customer_info as (
 
 SELECT 
     cst_id AS ID,
-    cst_key AS Customer_key,
-    TRIM(cst_firstname) as Firstname,
-    TRIM(cst_lastname) as Lastname,
+    cst_key AS customer_key,
+    TRIM(cst_firstname) as firstname,
+    TRIM(cst_lastname) as lastname,
     CASE 
         WHEN UPPER(TRIM(cst_marital_status)) = 'S' THEN 'Single' 
         WHEN UPPER(TRIM(cst_marital_status)) = 'M' THEN 'Married' 
         ELSE  'N/A'
-    END AS Marital_status,
-
+    END AS marital_status,
     CASE 
         WHEN UPPER(TRIM(cst_gndr)) = 'F' THEN 'Female' 
         WHEN UPPER(TRIM(cst_gndr)) = 'M' THEN 'Male' 
         ELSE  'N/A'
-    END AS Gendr,
+    END AS gender,
     cst_create_date
 FROM customer_info
 WHERE last_update = 1 and cst_id is not null
