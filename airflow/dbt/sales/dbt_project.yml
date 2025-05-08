@@ -24,10 +24,9 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   sales:    
-   Silver_layer:
-      schema: silver  
-      materialized: incremental
+    silver_layer:          
+        materialized: table
 
-    Gold_layer:
-      schema: gold
-      materialized: incremental
+    gold_layer:
+        schema: gold
+        materialized: incremental
