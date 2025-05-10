@@ -7,7 +7,8 @@ RUN pip install --no-cache-dir \
     dbt-core \
     dbt-postgres \
     airflow-dbt-python \
-    psycopg2-binary
+    psycopg2-binary \ 
+    flake8    
 
 USER root
 RUN apt-get update && apt-get install -y git

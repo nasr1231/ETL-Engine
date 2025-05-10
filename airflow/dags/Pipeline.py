@@ -6,7 +6,6 @@ from airflow.utils.dates import days_ago
 from airflow.utils.task_group import TaskGroup
 from airflow.operators.bash import BashOperator
 from dotenv import load_dotenv
-import pandas as pd
 import os
 import logging
 
@@ -15,6 +14,7 @@ load_dotenv("secrets.env")
 
 crm_path = "/opt/airflow/datasets/source_crm"
 erp_path = "/opt/airflow/datasets/source_erp"
+
 
 def postgres_credentials():
     return {
