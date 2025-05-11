@@ -103,12 +103,13 @@ with DAG(
         bash_command='dbt debug --profiles-dir /home/airflow/dbt --project-dir /home/airflow/dbt/sales || exit 1'
     )
     
+    
     with TaskGroup('silver_layer_tranform') as transform_data :
         models = [
             'crm_cust_info',
             'crm_prd_info',
             'crm_sales_details',
-            'erp_cust_info',
+            'erp_customer_info',
             'erp_customer_locations',
             'erp_px_cat'
         ]
@@ -116,7 +117,7 @@ with DAG(
         for model in models:
             dbt_transform_task = BashOperator(
                 task_id = f'{model}',
-                bash_command=f'dbt run  --profiles-dir /home/airflow/dbt --project-dir /home/airflow/dbt/sales --models {model}'
+                bash_command=f'dbt run --profiles-dir /home/airflow/dbt --project-dir /home/airflow/dbt/sales --models {model}'
             ) 
             
             dbt_test_task = BashOperator(
@@ -124,4 +125,25 @@ with DAG(
                 bash_command=f'dbt test --profiles-dir /home/airflow/dbt --project-dir /home/airflow/dbt/sales --models {model}'
             ) 
             
-postgres_task >> [crm_task, erp_task] >> test_dbt_resources >> transform_data
+    with TaskGroup('gold_layer_load') as load_data :
+        models = [
+            'dim_customers', 'dim_products', 'dim_dates', 'fact_sales'
+        ]
+                
+        for model in models:
+            dbt_load_task = BashOperator(
+                task_id = f'{model}',
+                bash_command=f'dbt run --profiles-dir /home/airflow/dbt --project-dir /home/airflow/dbt/sales --models {model}'                    
+            ) 
+            
+            
+
+                        
+        for model in models:
+            dbt_test_task = BashOperator(
+                task_id = f'test_{model}',
+                bash_command=f'dbt test --profiles-dir /home/airflow/dbt --project-dir /home/airflow/dbt/sales --models {model}'
+            )  
+                        
+            
+    postgres_task >> [crm_task, erp_task] >> test_dbt_resources >> transform_data >> load_data 
