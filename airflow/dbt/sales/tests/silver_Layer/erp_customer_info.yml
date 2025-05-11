@@ -1,5 +1,5 @@
 models:
-  - name: erp_cust_info
+  - name: erp_customer_info
     description: "ERP customers cleaned model"
     columns:
       - name: cid
