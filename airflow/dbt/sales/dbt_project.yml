@@ -22,11 +22,12 @@ clean-targets:         # directories to be removed by `dbt clean`
   - "target"
   - "dbt_packages"
 
-models:
-  sales:    
+models:  
+  sales:
     silver_layer:          
-        materialized: table
-
-    gold_layer:
-        schema: gold
-        materialized: incremental
+      materialized: table
+      +schema: silver
+      
+    gold_layer:        
+      materialized: table        
+      +schema: gold
