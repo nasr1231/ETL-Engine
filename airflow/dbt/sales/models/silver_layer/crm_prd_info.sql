@@ -16,7 +16,7 @@ with products_info as (
 SELECT 
     prd_id AS product_id,
     REPLACE(SUBSTRING(prd_key, 1, 5), '-', '_') AS category_id,
-    SUBSTRING(prd_key, 7, LENGTH(SUBSTRING(prd_key, 1, 5))) AS prd_key_id,
+    SUBSTRING(prd_key, 7, LENGTH(prd_key)) AS prd_key_id,
     prd_nm AS product_name, 
     COALESCE(prd_cost, 0) AS product_cost, 
     CASE 
