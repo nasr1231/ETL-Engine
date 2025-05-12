@@ -1,5 +1,5 @@
 # ETL-engine
-![DWH Architecture Diagram](Reporting-Layer/Images/DWH-architecture.png)
+![DWH Architecture Diagram](Reporting-Layer/Images/pipeline-architecture.png)
 
 ## 📑 Table of Contents
 1. [Introduction](#introduction)  
@@ -35,7 +35,7 @@ I applied **DBT (Data Build Tool)** in the ETL pipeline to transform raw data in
 
 ## 🏗️ Pipeline Architecture
 
-![DWH Architecture Diagram](Reporting-Layer/Images/pipeline-architecture.png)
+![DWH Architecture Diagram](Reporting-Layer/Images/DWH-architecture.png)
 ---
 
 ## Docker Setup 
@@ -116,15 +116,23 @@ In the **Gold layer**, I built analytical models in the form of **fact** and **d
 
 ---
 
-## 📊 Data Lineage
-![Minimized ETL Pipeline Tasks](Reporting-Layer/Images/data-lineage.png)
-
 ## 📚 Data Catalog
 *Coming Soon*
 
 ## 🗂️ Data Warehouse Data Modeling Schema
 ![Minimized ETL Pipeline Tasks](Reporting-Layer/Images/mapping.png)
 
+## 📊 Data Lineage
+![Minimized ETL Pipeline Tasks](Reporting-Layer/Images/data-lineage.png)
+
 ## 📈 Reporting
 *Coming Soon*
 
+If you have any questions or need clarification on anything in the project, feel free to reach out! I’d be more than happy to help and would love to assist you with any queries.
+
+## 📈 Contact Me
+Feel free to reach out if you have any questions or if you'd like to connect!
+
+📧 Email: mohamed.nasr.moh@gmail.com
+
+🔗 LinkedIn: [Mohamed Nasr](https://www.linkedin.com/in/de-mohamed-nasr/)
