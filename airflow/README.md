@@ -42,6 +42,8 @@ _AIRFLOW_WWW_USER_USERNAME=airflow
 _AIRFLOW_WWW_USER_PASSWORD=airflow
 ```
 
+> 📁 The full `docker-compose.yaml` file can be found: [Here](docker-compose.yml).
+
 ### 3️⃣ Build the Custom Airflow Image
 
 ```bash
@@ -155,4 +157,20 @@ Each model undergoes:
 - Secrets are loaded from `.env` file via `dotenv`
 - Pipeline is structured using `TaskGroup` for modularity and clarity
 - PostgreSQL credentials are handled securely via environment variables
+  
+---
 
+## 📘 dbt Project Notes
+
+- `--profiles-dir` and `--project-dir` were explicitly used in all dbt commands because the `profiles.yml` and dbt project directory were located in non-default paths.
+- dbt Documentation Commands used:
+
+```bash
+dbt docs generate --profiles-dir /home/airflow/dbt --project-dir /home/airflow/dbt/sales
+
+dbt docs serve --profiles-dir /home/airflow/dbt --project-dir /home/airflow/dbt/sales --port 8100 --host 0.0.0.0
+```
+
+> 💡 **Note**: The `--host` and `--port` settings were required to make the dbt docs UI accessible outside the container (on localhost:8100) due to the use of Docker and port mapping defined in `docker-compose.yaml`.
+
+---
