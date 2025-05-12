@@ -25,7 +25,8 @@ I applied **DBT (Data Build Tool)** in the ETL pipeline to transform raw data in
 
 - **Docker**: To containerize and standardize the development environment.  
 - **Python**: For scripting tasks and automating data processes.  
-- **PostgreSQL**: Acted as the data warehouse.  
+- **PostgreSQL**: Acted as the data warehouse.
+- **pgAdmin**: A graphical user interface to interact with the PostgreSQL database, inspect data, validate transformations, and execute SQL queries during development and testing.
 - **Airflow**: Managed and scheduled ETL workflows.  
 - **DBT (Data Build Tool)**: Handled the transformation and building of data models within the warehouse.  
 - **Power BI**: Delivered the final insights through interactive dashboards and visual reports.  
@@ -72,16 +73,16 @@ In the **Gold layer**, I built analytical models in the form of **fact** and **d
 ---
 
 ## 📊 Data Lineage
-![DWH Architecture Diagram](Reporting-Layer/Images/DWH-architecture.png)
+![Minimized ETL Pipeline Tasks](Reporting-Layer/Images/data-lineage.png)
 
 ## 🏗️ Pipeline Architecture
-*Coming Soon*
+![ETL DAG](Reporting-Layer/Images/min-dag-graph.png)
 
 ## 📚 Data Catalog
 *Coming Soon*
 
 ## 🗂️ Data Warehouse Data Modeling Schema
-
+![Minimized ETL Pipeline Tasks](Reporting-Layer/Images/mapping.drawio.png)
 
 ## 📈 Reporting
 *Coming Soon*
