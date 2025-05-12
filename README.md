@@ -100,6 +100,7 @@ In the **Gold layer**, I built analytical models in the form of **fact** and **d
 ![Minimized ETL Pipeline Tasks](Reporting-Layer/Images/data-lineage.png)
 
 ## 🏗️ Pipeline Architecture
+![ETL DAG](Reporting-Layer/Images/dag-graph.jpg)
 ![ETL DAG](Reporting-Layer/Images/min-dag-graph.png)
 
 ## 📚 Data Catalog
