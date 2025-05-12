@@ -95,24 +95,176 @@ In the **Silver layer**, raw data from the **Bronze layer** (which consists of s
 
 **Transformed into Silver Layer Tables:**
 - `crm_cust_info` *(retained with cleaning and standardization)*
-- `crm_prd_info` *(retained with cleaning and standardization)*
-- `crm_sales_details` *(retained with cleaning and standardization)*
-- `erp_customer_info` *(from `erp_cust_az12`)*
-- `erp_customer_locations` *(from `erp_loc_a101`)*
-- `erp_px_cat` *(from `erp_px_cat_g1v2`)*
 
-These models act as structured, reliable datasets for dimensional modeling.
+``` bash
+{{ 
+    config(        
+        materialized='table',
+        unique_key='ID',
+        indexes=[{"columns": ['ID'], "unique": true}],
+    ) 
+}}
+
+
+with customer_info as (
+    SELECT 
+        *, 
+        row_number() OVER (PARTITION BY cst_id ORDER BY cst_create_date DESC) AS last_update
+    FROM {{ source('raw_data', 'crm_cust_info') }}
+)
+
+SELECT 
+    cst_id AS ID,
+    cst_key AS customer_key,
+    TRIM(cst_firstname) as firstname,
+    TRIM(cst_lastname) as lastname,
+    CASE 
+        WHEN UPPER(TRIM(cst_marital_status)) = 'S' THEN 'Single' 
+        WHEN UPPER(TRIM(cst_marital_status)) = 'M' THEN 'Married' 
+        ELSE  'N/A'
+    END AS marital_status,
+    CASE 
+        WHEN UPPER(TRIM(cst_gndr)) = 'F' THEN 'Female' 
+        WHEN UPPER(TRIM(cst_gndr)) = 'M' THEN 'Male' 
+        ELSE  'N/A'
+    END AS gender,
+    cst_create_date
+FROM customer_info
+WHERE last_update = 1 and cst_id is not null
+```
+- `crm_prd_info` *(retained with cleaning and standardization)*
+```bash
+{{
+    config(
+        materialized='table',
+        unique_key='product_id',
+        indexes=[{"columns": ['product_id'], "unique": true}]
+    )
+}}
+
+with products_info as (
+    SELECT 
+        *, 
+        row_number() OVER (PARTITION BY prd_id ORDER BY prd_start_dt DESC) AS last_update        
+    FROM {{ source('raw_data', 'crm_prd_info') }}
+)
+
+SELECT 
+    prd_id AS product_id,
+    REPLACE(SUBSTRING(prd_key, 1, 5), '-', '_') AS category_id,
+    SUBSTRING(prd_key, 7, LENGTH(prd_key)) AS prd_key_id,
+    prd_nm AS product_name, 
+    COALESCE(prd_cost, 0) AS product_cost, 
+    CASE 
+        WHEN UPPER(TRIM(prd_line)) = 'M' THEN  'Mountain'
+        WHEN UPPER(TRIM(prd_line)) = 'R' THEN  'Road'
+        WHEN UPPER(TRIM(prd_line)) = 'T' THEN  'Touring'
+        WHEN UPPER(TRIM(prd_line)) = 'S' THEN  'Other Sales'
+        ELSE  'N/A'
+    END AS product_line,
+    CAST(prd_start_dt AS DATE) AS start_date,
+    CAST(LEAD(prd_start_dt) OVER (PARTITION BY prd_key ORDER BY prd_start_dt) - INTERVAL '1 DAY' AS DATE) AS end_date
+FROM products_info
+WHERE last_update = 1 and prd_id is not null
+```
+
+These models act as structured, reliable datasets for dimensional modeling. [See More](airflow/dbt/sales/models/silver_layer)
 
 ### 🥇 Gold Layer (Analytics-ready Models)
 
 In the **Gold layer**, I built analytical models in the form of **fact** and **dimension** tables:
 
-- `dim_products`: Product dimension derived from both CRM and ERP.
-- `dim_customers`: Unified customer dimension.
-- `dim_dates`: Calendar dimension for time-based analysis.
-- `fact_sales`: Central fact table representing enriched sales transactions.
+#### Fact Tables
 
-> This layered approach ensures clean separation of concerns, maintainability, and performance optimization in analytics workflows.
+- `fact_sales`:
+```bash
+
+WITH fact_sales AS(
+    SELECT        
+        sls.order_number,
+        prd.product_key,        
+        cust.customer_key,
+        od.date_key AS key_order_date,
+        sd.date_key AS key_ship_date,
+        dd.date_key AS key_due_date,
+        sls.sales_amount,
+        sls.quantity,
+        sls.unit_price
+
+    FROM {{ref('crm_sales_details')}} AS sls    
+    LEFT JOIN {{ref('dim_customers')}} AS cust   
+        ON sls.customer_id = cust.customer_id
+    LEFT JOIN {{ref('dim_products')}} AS prd   
+        ON sls.product_key = prd.product_number    
+    LEFT JOIN {{ref('dim_dates')}} AS od
+        ON sls.order_date = od.date_value 
+    LEFT JOIN {{ref('dim_dates')}} AS sd
+        ON sls.ship_date = sd.date_value 
+    LEFT JOIN {{ref('dim_dates')}} AS dd
+        ON sls.due_date = dd.date_value 
+)
+
+SELECT * FROM fact_sales
+```
+
+#### Dimensions
+- `dim_products`:
+```bash
+WITH customer_info AS (
+    SELECT         
+        crm_cust.ID as customer_id,
+        crm_cust.customer_key,
+        crm_cust.firstname AS first_name,
+        crm_cust.lastname AS last_name,
+        CASE WHEN crm_cust.gender != 'N/A' THEN crm_cust.gender
+            ELSE COALESCE(erp_cust.gender, 'N/A')
+        END AS gender,
+        crm_cust.marital_status,
+        erp_cust.bdate AS birth_date,        
+        erp_loc.cntry AS country
+    FROM {{ref('crm_cust_info')}} AS crm_cust
+    LEFT JOIN {{ref('erp_customer_info')}} AS erp_cust
+    ON crm_cust.customer_key = erp_cust.cid
+    LEFT JOIN {{ref('erp_customer_locations')}} AS erp_loc
+    ON crm_cust.customer_key = erp_loc.cid
+)
+
+SELECT *
+FROM customer_info
+```
+
+- `dim_dates`:
+```bash
+
+
+WITH dates AS (
+    SELECT order_date AS ord_date_value FROM{{ref('crm_sales_details')}}
+    UNION 
+    SELECT ship_date FROM {{ref('crm_sales_details')}}
+    UNION 
+    SELECT due_date FROM{{ref('crm_sales_details')}}
+),
+date_dim_cte AS (
+    SELECT  
+        DISTINCT ord_date_value AS date_value,
+        MD5(CAST(ord_date_value AS TEXT)) AS date_key,
+        EXTRACT(YEAR FROM ord_date_value) AS year,
+        EXTRACT(MONTH FROM ord_date_value) AS month,
+        EXTRACT(DAY FROM ord_date_value) AS day,
+        EXTRACT(QUARTER FROM ord_date_value) AS quarter,
+        TO_CHAR(ord_date_value, 'FMDay') AS day_name,
+        TO_CHAR(ord_date_value, 'FMMonth') AS month_name
+    FROM dates    
+)
+
+SELECT
+    * 
+FROM date_dim_cte
+WHERE date_value IS NOT NULL OR date_key IS NOT NULL
+```
+
+
+> This layered approach ensures clean separation of concerns, maintainability, and performance optimization in analytics workflows. [See More](airflow/dbt/sales/models/gold_layer)
 
 ---
 
