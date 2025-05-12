@@ -1,22 +1,35 @@
 # ETL-engine
+
 ![DWH Architecture Diagram](Reporting-Layer/Images/pipeline-architecture.png)
 
 ## 📑 Table of Contents
-1. [Introduction](#introduction)  
-2. [Used Technologies & Tools](#used-technologies--tools)  
-3. [Data Lineage](#data-lineage)  
-4. [Pipeline Architecture](#pipeline-architecture)  
-5. [DBT Models Transformation](#dbt-models-transformation)  
-6. [Data Catalog](#data-catalog)  
-7. [Data Warehouse Data Modeling Schema](#data-warehouse-data-modeling-schema)  
-8. [Reporting](#reporting)  
+- [ETL-engine](#etl-engine)
+  - [📑 Table of Contents](#-table-of-contents)
+  - [🧩 Introduction](#-introduction)
+  - [🛠️ Used Technologies & Tools](#️-used-technologies--tools)
+  - [🏗️ Pipeline Architecture](#️-pipeline-architecture)
+  - [🐳 Docker Setup](#-docker-setup)
+    - [🔧 Custom Dockerfile](#-custom-dockerfile)
+  - [🔄 DAG Overview](#-dag-overview)
+    - [🔧 DAG Overview: sales_pipeline](#-dag-overview-sales_pipeline)
+  - [🔄 DBT Models Transformation](#-dbt-models-transformation)
+    - [🪙 Silver Layer (Cleaned & Structured Data)](#-silver-layer-cleaned--structured-data)
+    - [🥇 Gold Layer (Analytics-ready Models)](#-gold-layer-analytics-ready-models)
+      - [Fact Tables](#fact-tables)
+      - [Dimensions](#dimensions)
+  - [📚 Data Catalog](#-data-catalog)
+  - [🗂️ Data Warehouse Data Modeling Schema](#️-data-warehouse-data-modeling-schema)
+  - [📊 Data Lineage](#-data-lineage)
+  - [📈 Reporting](#-reporting)
 
 ---
 
 ## 🧩 Introduction
 
 This project utilizes data from two different sources (**CRM** and **ERP**), which provide detailed datasets about sales transactions, including customer information, products, locations, and more.  
+
 These datasets are transformed and stored in a **Data Warehouse** using the **Medallion architecture** to structure the data efficiently for analytics.  
+
 I applied **DBT (Data Build Tool)** in the ETL pipeline to transform raw data into analytics-ready datasets, ensuring high-quality and optimized data models for reporting and business intelligence.
 
 ---
@@ -36,14 +49,16 @@ I applied **DBT (Data Build Tool)** in the ETL pipeline to transform raw data in
 ## 🏗️ Pipeline Architecture
 
 ![DWH Architecture Diagram](Reporting-Layer/Images/DWH-architecture.png)
+
 ---
 
-## Docker Setup 
+## 🐳 Docker Setup 
 To ensure consistency, reusability, and easy environment setup across all tools used in this project, I utilized Docker and Docker Compose to build a fully integrated ETL development environment.
 
 ### 🔧 Custom Dockerfile
 A custom Docker image `engine-airflow-custom:latest` was created based on apache/airflow:2.10.4 to include all necessary libraries used in the ETL pipeline and DBT transformations:
-```bash
+
+```dockerfile
 FROM apache/airflow:2.10.4
 
 USER airflow
@@ -58,14 +73,14 @@ RUN pip install --no-cache-dir \
 
 USER root
 RUN apt-get update && apt-get install -y git
-
 ```
+
 For detailed settings and the full configuration for `volumes`, `Networks`, and the working tools, please refer to the docker-compose.yml file in the repository here: 
 [docker compose file](airflow/docker-compose.yml)
 
 ---
 
-## 🏗️ DAG Overview
+## 🔄 DAG Overview
 
 The ETL pipeline is orchestrated by Apache Airflow using the TaskFlow API and Bash Operators, with a focus on modular ingestion, transformation, and testing for CRM and ERP data sources.
 
@@ -96,7 +111,7 @@ In the **Silver layer**, raw data from the **Bronze layer** (which consists of s
 **Transformed into Silver Layer Tables:**
 - `crm_cust_info` *(retained with cleaning and standardization)*
 
-``` bash
+```sql
 {{ 
     config(        
         materialized='table',
@@ -132,8 +147,10 @@ SELECT
 FROM customer_info
 WHERE last_update = 1 and cst_id is not null
 ```
+
 - `crm_prd_info` *(retained with cleaning and standardization)*
-```bash
+
+```sql
 {{
     config(
         materialized='table',
@@ -177,8 +194,8 @@ In the **Gold layer**, I built analytical models in the form of **fact** and **d
 #### Fact Tables
 
 - `fact_sales`:
-```bash
 
+```sql
 WITH fact_sales AS(
     SELECT        
         sls.order_number,
@@ -209,7 +226,8 @@ SELECT * FROM fact_sales
 
 #### Dimensions
 - `dim_products`:
-```bash
+
+```sql
 WITH customer_info AS (
     SELECT         
         crm_cust.ID as customer_id,
@@ -234,9 +252,8 @@ FROM customer_info
 ```
 
 - `dim_dates`:
-```bash
 
-
+```sql
 WITH dates AS (
     SELECT order_date AS ord_date_value FROM{{ref('crm_sales_details')}}
     UNION 
@@ -263,7 +280,6 @@ FROM date_dim_cte
 WHERE date_value IS NOT NULL OR date_key IS NOT NULL
 ```
 
-
 > This layered approach ensures clean separation of concerns, maintainability, and performance optimization in analytics workflows. [See More](airflow/dbt/sales/models/gold_layer)
 
 ---
@@ -272,17 +288,17 @@ WHERE date_value IS NOT NULL OR date_key IS NOT NULL
 *Coming Soon*
 
 ## 🗂️ Data Warehouse Data Modeling Schema
-![Minimized ETL Pipeline Tasks](Reporting-Layer/Images/mapping.png)
+![Data Warehouse Schema](Reporting-Layer/Images/mapping.png)
 
 ## 📊 Data Lineage
-![Minimized ETL Pipeline Tasks](Reporting-Layer/Images/data-lineage.png)
+![Data Lineage](Reporting-Layer/Images/data-lineage.png)
 
 ## 📈 Reporting
 *Coming Soon*
 
-If you have any questions or need clarification on anything in the project, feel free to reach out! I’d be more than happy to help and would love to assist you with any queries.
+If you have any questions or need clarification on anything in the project, feel free to reach out! I'd be more than happy to help and would love to assist you with any queries.
 
-## 📈 Contact Me
+## 📱 Contact Me
 Feel free to reach out if you have any questions or if you'd like to connect!
 
 📧 Email: mohamed.nasr.moh@gmail.com
