@@ -1,5 +1,12 @@
+# Sales Pipeline - ETL Documentation
 
-### 6️⃣ Project Folder Structure
+## Overview
+
+This pipeline is built using **Apache Airflow** and designed to perform a full ETL process for sales data. It ingests data from CRM and ERP systems, transforms it using **dbt** into structured silver and gold layers, and loads it into **PostgreSQL**.
+
+---
+
+## Project Folder Structure
 
 ```bash
 
@@ -71,4 +78,81 @@ This command will:
 | Airflow     | [http://localhost:8080](http://localhost:8080) | `admin / admin`                   |
 | pgAdmin     | [http://localhost:5050](http://localhost:5050) | `engine@admin.com / admin`        |
 | Power BI    | Connect via PostgreSQL (host: `localhost`, port: `5432`) |
+
+---
+
+## DAG Structure
+
+```python
+dag_id = "sales_pipeline"
+description = "ETL Engine"
+tags = ['data_ingestion', 'sales']
+schedule_interval = None
+```
+
+### Task Flow
+
+#### 1. PostgreSQL Connection Test
+
+- Uses `TaskFlow API`
+- Ensures connection to the PostgreSQL database is successful before running the pipeline
+
+#### 2. Ingest Data (Task Group)
+
+**CRM Datasets Ingested:**
+
+- `cust_info.csv` → `crm_cust_info`
+- `prd_info.csv` → `crm_prd_info`
+- `sales_details.csv` → `crm_sales_details`
+
+**ERP Datasets Ingested:**
+
+- `CUST_AZ12.csv` → `erp_cust_az12`
+- `LOC_A101.csv` → `erp_loc_a101`
+- `PX_CAT_G1V2.csv` → `erp_px_cat_g1v2`
+
+#### 3. Test DBT Resources
+
+- Executes `dbt debug` command to ensure the environment and project configuration are valid
+
+#### 4. Silver Layer Transformations (Task Group)
+
+**dbt models transformed:**
+- `crm_cust_info`
+- `crm_prd_info`
+- `crm_sales_details`
+- `erp_customer_info`
+- `erp_customer_locations`
+- `erp_px_cat`
+
+Each model undergoes:
+- `dbt run`
+- `dbt test`
+
+#### 5. Gold Layer Load (Task Group)
+
+**dbt models created:**
+- `dim_customers`
+- `dim_products`
+- `dim_dates`
+- `fact_sales`
+
+Each model undergoes:
+- `dbt run`
+- `dbt test`
+
+---
+
+## Operators Used
+
+- `@task` decorator from TaskFlow API
+- `BashOperator` for executing dbt CLI commands
+
+---
+
+## Notes
+
+- Secrets are loaded from `.env` file via `dotenv`
+- Pipeline is structured using `TaskGroup` for modularity and clarity
+- PostgreSQL credentials are handled securely via environment variables
 
