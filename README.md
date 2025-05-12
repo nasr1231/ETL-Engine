@@ -57,6 +57,20 @@ RUN apt-get update && apt-get install -y git
 ```
 For detailed settings and the full configuration for `volumes`, `Networks` and the working tools, please refer to the docker-compose.yml file in the repository here: 
 [docker compose file](airflow/docker-compose.yml)
+
+---
+
+## 🏗️ Pipeline Architecture
+
+This DAG is responsible for extracting, transforming, and loading sales-related data into a PostgreSQL database, then applying DBT models to transform the data into clean dimensional layers.
+
+![ETL DAG](Reporting-Layer/Images/dag-graph.jpg)
+![ETL DAG](Reporting-Layer/Images/min-dag-graph.png)
+
+### 🔧 DAG Overview: sales_pipeline
+This DAG is responsible for extracting, transforming, and loading sales-related data into a PostgreSQL database, then applying DBT models to transform the data into clean dimensional layers.
+See More: [pipeline.py](airflow/dags/pipeline.py)
+
 ## 🔄 DBT Models Transformation
 
 The transformation layer of this ETL pipeline is implemented using **DBT (Data Build Tool)** to structure and optimize raw data for analytics and reporting purposes. The transformation process follows a layered approach using the **Medallion Architecture**, specifically focusing on the **Silver** and **Gold** layers.
@@ -98,10 +112,6 @@ In the **Gold layer**, I built analytical models in the form of **fact** and **d
 
 ## 📊 Data Lineage
 ![Minimized ETL Pipeline Tasks](Reporting-Layer/Images/data-lineage.png)
-
-## 🏗️ Pipeline Architecture
-![ETL DAG](Reporting-Layer/Images/dag-graph.jpg)
-![ETL DAG](Reporting-Layer/Images/min-dag-graph.png)
 
 ## 📚 Data Catalog
 *Coming Soon*
