@@ -33,6 +33,11 @@ I applied **DBT (Data Build Tool)** in the ETL pipeline to transform raw data in
 
 ---
 
+## 🏗️ Pipeline Architecture
+
+![DWH Architecture Diagram](Reporting-Layer/Images/pipeline-architecture.png)
+---
+
 ## Docker Setup 
 To ensure consistency, reusability, and easy environment setup across all tools used in this project, I utilized Docker and Docker Compose to build a fully integrated ETL development environment.
 
@@ -55,21 +60,22 @@ USER root
 RUN apt-get update && apt-get install -y git
 
 ```
-For detailed settings and the full configuration for `volumes`, `Networks` and the working tools, please refer to the docker-compose.yml file in the repository here: 
+For detailed settings and the full configuration for `volumes`, `Networks`, and the working tools, please refer to the docker-compose.yml file in the repository here: 
 [docker compose file](airflow/docker-compose.yml)
 
 ---
 
-## 🏗️ Pipeline Architecture
+## 🏗️ DAG Overview
 
-This DAG is responsible for extracting, transforming, and loading sales-related data into a PostgreSQL database, then applying DBT models to transform the data into clean dimensional layers.
+The ETL pipeline is orchestrated by Apache Airflow using the TaskFlow API and Bash Operators, with a focus on modular ingestion, transformation, and testing for CRM and ERP data sources.
 
 ![ETL DAG](Reporting-Layer/Images/dag-graph.jpg)
+
 ![ETL DAG](Reporting-Layer/Images/min-dag-graph.png)
 
 ### 🔧 DAG Overview: sales_pipeline
 This DAG is responsible for extracting, transforming, and loading sales-related data into a PostgreSQL database, then applying DBT models to transform the data into clean dimensional layers.
-See More: [pipeline.py](airflow/dags/pipeline.py)
+See More: [Pipeline.py](airflow/dags/pipeline.py)
 
 ## 🔄 DBT Models Transformation
 
