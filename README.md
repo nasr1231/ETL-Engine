@@ -82,7 +82,7 @@ In the **Gold layer**, I built analytical models in the form of **fact** and **d
 *Coming Soon*
 
 ## 🗂️ Data Warehouse Data Modeling Schema
-![Minimized ETL Pipeline Tasks](Reporting-Layer/Images/mapping.drawio.png)
+![Minimized ETL Pipeline Tasks](Reporting-Layer/Images/mapping.png)
 
 ## 📈 Reporting
 *Coming Soon*
