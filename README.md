@@ -33,6 +33,30 @@ I applied **DBT (Data Build Tool)** in the ETL pipeline to transform raw data in
 
 ---
 
+## Docker Setup 
+To ensure consistency, reusability, and easy environment setup across all tools used in this project, I utilized Docker and Docker Compose to build a fully integrated ETL development environment.
+
+### 🔧 Custom Dockerfile
+A custom Docker image `engine-airflow-custom:latest` was created based on apache/airflow:2.10.4 to include all necessary libraries used in the ETL pipeline and DBT transformations:
+```bash
+FROM apache/airflow:2.10.4
+
+USER airflow
+
+RUN pip install --no-cache-dir \
+    pandas \
+    dbt-core \
+    dbt-postgres \
+    airflow-dbt-python \
+    psycopg2-binary \ 
+    flake8    
+
+USER root
+RUN apt-get update && apt-get install -y git
+
+```
+For detailed settings and the full configuration for `volumes`, `Networks` and the working tools, please refer to the docker-compose.yml file in the repository here: 
+[docker compose file](airflow/docker-compose.yml)
 ## 🔄 DBT Models Transformation
 
 The transformation layer of this ETL pipeline is implemented using **DBT (Data Build Tool)** to structure and optimize raw data for analytics and reporting purposes. The transformation process follows a layered approach using the **Medallion Architecture**, specifically focusing on the **Silver** and **Gold** layers.
