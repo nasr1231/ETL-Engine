@@ -3,7 +3,7 @@
 ![DWH Architecture Diagram](Reporting-Layer/Images/pipeline-architecture.png)
 
 ## 📑 Table of Contents
-- [ETL-engine](#etl-engine)  
+- [ETL-engine](#etl-engine)
   - [Introduction](#-introduction)
   - [Used Technologies & Tools](#️-used-technologies--tools)
   - [Pipeline Architecture](#️-pipeline-architecture)
@@ -284,7 +284,100 @@ WHERE date_value IS NOT NULL OR date_key IS NOT NULL
 ---
 
 ## Data Catalog
-*Coming Soon*
+
+### Overview
+
+The **Data Catalog** serves as a centralized document that documents all datasets processed within the ETL engine. It provides metadata for every table across the three standardized layers of the Medallion Architecture: **Bronze**, **Silver**, and **Gold**.
+
+- **Bronze Layer**: Raw, ingested data from CRM and ERP systems. It contains semi-structured or unprocessed records as they arrive from source systems, offering full data traceability and recovery capabilities.
+- **Silver Layer**: Cleaned and transformed datasets. Here, data is deduplicated, typed, and structured for analytical readiness, providing business-friendly formats.
+- **Gold Layer**: Business-level aggregated models. This includes fact and dimension tables that are optimized for dashboards, reporting, and downstream analytics.
+
+### Bronze Layer
+
+The **Bronze Layer** is the raw data layer. It stores data exactly as received from the source systems (like CRM or ERP) with minimal to no transformation. It contains:
+
+#### ` crm_cust_info `
+- **Description**: CRM Customer Raw Data
+- **Refresh Rate**: Full Load
+- **Source**: CRM System
+- **Columns**:
+
+| Column Name        | Data Type            | Description                                      |
+|--------------------|----------------------|--------------------------------------------------|
+| `cst_id`           | `integer`            | Unique numeric identifier for each customer.     |
+| `cst_key`          | `varchar(50)`        | Business key or external identifier for the customer. |
+| `cst_firstname`    | `varchar(50)`        | Customer's first name.                          |
+| `cst_lastname`     | `varchar(50)`        | Customer's last name.                           |
+| `cst_marital_status` | `varchar(50)`      | Marital status (e.g., 'S' for Single, 'M' for Married). |
+| `cst_gndr`         | `varchar(50)`        | Gender of the customer (e.g., 'M', 'F').        |
+| `cst_create_date`  | `date`               | The date the customer record was created.       |
+
+#### `erp_cust_az12`
+- **Description**: ERP Customer Raw Data
+- **Refresh Rate**: Full Load
+- **Source**: ERP System
+- **Columns**:
+
+| Column Name | Data Type         | Description                                              |
+|-------------|-------------------|----------------------------------------------------------|
+| `cid`       | `varchar(50)`     | Unique customer code.    |
+| `bdate`     | `date`            | Customer's date of birth.                               |
+| `gen`       | `varchar(12)`     | Customer's gender.              |
+
+### Silver Layer
+
+The **Silver Layer** represents the cleaned and refined version of the raw data collected in the Bronze Layer. At this stage, data is transformed to fix issues such as duplicates, null values, and inconsistent formats. It may also include standardized fields, derived columns, and basic joins between related datasets to create a more structured and consistent sets of the data. It contains:
+
+#### `crm_sales_details`
+- **Description**: Cleaned, standardized, and formatted sales order from the bronze layer
+- **Refresh Rate**: daily
+- **Source**: bronze.crm_sales_details
+- **Columns**:
+
+
+| Column Name     | Data Type              | Description                                                                 |
+|-----------------|------------------------|-----------------------------------------------------------------------------|
+| `order_number`  | `character varying(50)`| Unique identifier for the sales order.                                      |
+| `product_key`   | `character varying(50)`| Code representing the specific product sold.                                |
+| `customer_id`   | `integer`              | ID of the customer who placed the order.                                    |
+| `sls_sales`     | `double precision`     | Sales value generated from the order (may duplicate `sales_amount`).        |
+| `order_date`    | `date`                 | Date when the order was placed.                                             |
+| `ship_date`     | `date`                 | Date when the order was shipped.                                            |
+| `due_date`      | `date`                 | Expected delivery date of the order.                                        |
+| `sales_amount`  | `double precision`     | Total amount of the order (usually = unit price × quantity).                |
+| `quantity`      | `integer`              | Number of product units sold in the order.                                  |
+| `unit_price`    | `double precision`     | Price per unit of the product.                                              |
+
+### Gold Layer
+
+#### `dim_products`
+- **Description**:
+This dimension extracts and enriches product information from the CRM system, joining it with additional category data from the ERP system. Only active (non-expired) products are included. A surrogate key (`product_key`) is generated using `ROW_NUMBER()` to uniquely identify each product record in an ordered fashion.
+- **Source**:
+  - The source table `crm_prd_info` is filtered to include only records where `end_date IS NULL` (active products).
+  - It is joined with `erp_px_cat` to enhance each product with its full category and subcategory names, along with maintenance information.
+  - A surrogate `product_key` is generated using `ROW_NUMBER()` based on the start date and original product key ID.
+- **Schema**:
+
+| Column Name     | Data Type         | Description                                                                 |
+|-----------------|-------------------|-----------------------------------------------------------------------------|
+| `product_key`   | `bigint`         | Surrogate key generated via `ROW_NUMBER()` for uniquely identifying rows.  |
+| `product_id`    | `int`  | Original product ID from the CRM system.                                    |
+| `product_number`| `text` | Original key identifier for the product from CRM.                         |
+| `product_name`  | `varchar(50)`         | Name of the product.                                                        |
+| `category_id`   | `text`  | Foreign key referring to the category from ERP.                             |
+| `category`      | `varchar(50)`         | Category name from ERP table.                                               |
+| `subcategory`   | `varchar(50)`         | Subcategory name from ERP table.                                            |
+| `product_line`  | `text`         | Product line classification.                                                |
+| `cost`          | `double` | Cost of the product.                                               |
+| `start_date`    | `date`            | Start date of the product's lifecycle.                                      |
+| `maintenance`   | `varchar(10)`| Indicates if the product requires maintenance (from ERP).                  |
+
+
+This catalog acts as documentation to investigate all the layers, tables and the relations between each one and the attributes of each table. [See More](Docs/data-catalog.md)
+
+---
 
 ## Data Warehouse Data Modeling Schema
 ![Data Warehouse Schema](Reporting-Layer/Images/mapping.png)
