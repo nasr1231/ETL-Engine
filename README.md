@@ -3,28 +3,27 @@
 ![DWH Architecture Diagram](Reporting-Layer/Images/pipeline-architecture.png)
 
 ## 📑 Table of Contents
-- [ETL-engine](#etl-engine)
-  - [📑 Table of Contents](#-table-of-contents)
-  - [🧩 Introduction](#-introduction)
-  - [🛠️ Used Technologies & Tools](#️-used-technologies--tools)
-  - [🏗️ Pipeline Architecture](#️-pipeline-architecture)
-  - [🐳 Docker Setup](#-docker-setup)
-    - [🔧 Custom Dockerfile](#-custom-dockerfile)
-  - [🔄 DAG Overview](#-dag-overview)
-    - [🔧 DAG Overview: sales_pipeline](#-dag-overview-sales_pipeline)
-  - [🔄 DBT Models Transformation](#-dbt-models-transformation)
-    - [🪙 Silver Layer (Cleaned & Structured Data)](#-silver-layer-cleaned--structured-data)
-    - [🥇 Gold Layer (Analytics-ready Models)](#-gold-layer-analytics-ready-models)
+- [ETL-engine](#etl-engine)  
+  - [Introduction](#-introduction)
+  - [Used Technologies & Tools](#️-used-technologies--tools)
+  - [Pipeline Architecture](#️-pipeline-architecture)
+  - [Docker Setup](#-docker-setup)
+    - [Custom Dockerfile](#-custom-dockerfile)
+  - [DAG Overview](#-dag-overview)
+    - [DAG Overview: sales_pipeline](#-dag-overview-sales_pipeline)
+  - [DBT Models Transformation](#-dbt-models-transformation)
+    - [Silver Layer (Cleaned & Structured Data)](#-silver-layer-cleaned--structured-data)
+    - [Gold Layer (Analytics-ready Models)](#-gold-layer-analytics-ready-models)
       - [Fact Tables](#fact-tables)
       - [Dimensions](#dimensions)
-  - [📚 Data Catalog](#-data-catalog)
-  - [🗂️ Data Warehouse Data Modeling Schema](#️-data-warehouse-data-modeling-schema)
-  - [📊 Data Lineage](#-data-lineage)
-  - [📈 Reporting](#-reporting)
+  - [Data Catalog](#-data-catalog)
+  - [Data Warehouse Data Modeling Schema](#️-data-warehouse-data-modeling-schema)
+  - [Data Lineage](#-data-lineage)
+  - [Reporting](#-reporting)
 
 ---
 
-## 🧩 Introduction
+## Introduction
 
 This project utilizes data from two different sources (**CRM** and **ERP**), which provide detailed datasets about sales transactions, including customer information, products, locations, and more.  
 
@@ -34,7 +33,7 @@ I applied **DBT (Data Build Tool)** in the ETL pipeline to transform raw data in
 
 ---
 
-## 🛠️ Used Technologies & Tools
+## Used Technologies & Tools
 
 - **Docker**: To containerize and standardize the development environment.  
 - **Python**: For scripting tasks and automating data processes.  
@@ -46,13 +45,13 @@ I applied **DBT (Data Build Tool)** in the ETL pipeline to transform raw data in
 
 ---
 
-## 🏗️ Pipeline Architecture
+## Pipeline Architecture
 
 ![DWH Architecture Diagram](Reporting-Layer/Images/DWH-architecture.png)
 
 ---
 
-## 🐳 Docker Setup 
+## Docker Setup 
 To ensure consistency, reusability, and easy environment setup across all tools used in this project, I utilized Docker and Docker Compose to build a fully integrated ETL development environment.
 
 ### 🔧 Custom Dockerfile
@@ -80,7 +79,7 @@ For detailed settings and the full configuration for `volumes`, `Networks`, and 
 
 ---
 
-## 🔄 DAG Overview
+## DAG Overview
 
 The ETL pipeline is orchestrated by Apache Airflow using the TaskFlow API and Bash Operators, with a focus on modular ingestion, transformation, and testing for CRM and ERP data sources.
 
@@ -92,11 +91,11 @@ The ETL pipeline is orchestrated by Apache Airflow using the TaskFlow API and Ba
 This DAG is responsible for extracting, transforming, and loading sales-related data into a PostgreSQL database, then applying DBT models to transform the data into clean dimensional layers.
 See More: [Pipeline.py](airflow/dags/pipeline.py)
 
-## 🔄 DBT Models Transformation
+## DBT Models Transformation
 
 The transformation layer of this ETL pipeline is implemented using **DBT (Data Build Tool)** to structure and optimize raw data for analytics and reporting purposes. The transformation process follows a layered approach using the **Medallion Architecture**, specifically focusing on the **Silver** and **Gold** layers.
 
-### 🪙 Silver Layer (Cleaned & Structured Data)
+### Silver Layer (Cleaned & Structured Data)
 
 In the **Silver layer**, raw data from the **Bronze layer** (which consists of six tables sourced from CRM and ERP systems) is cleaned, standardized, and structured.
 
@@ -187,7 +186,7 @@ WHERE last_update = 1 and prd_id is not null
 
 These models act as structured, reliable datasets for dimensional modeling. [See More](airflow/dbt/sales/models/silver_layer)
 
-### 🥇 Gold Layer (Analytics-ready Models)
+### Gold Layer (Analytics-ready Models)
 
 In the **Gold layer**, I built analytical models in the form of **fact** and **dimension** tables:
 
@@ -284,16 +283,16 @@ WHERE date_value IS NOT NULL OR date_key IS NOT NULL
 
 ---
 
-## 📚 Data Catalog
+## Data Catalog
 *Coming Soon*
 
-## 🗂️ Data Warehouse Data Modeling Schema
+## Data Warehouse Data Modeling Schema
 ![Data Warehouse Schema](Reporting-Layer/Images/mapping.png)
 
-## 📊 Data Lineage
+## Data Lineage
 ![Data Lineage](Reporting-Layer/Images/data-lineage.png)
 
-## 📈 Reporting
+## Reporting
 *Coming Soon*
 
 If you have any questions or need clarification on anything in the project, feel free to reach out! I'd be more than happy to help and would love to assist you with any queries.
