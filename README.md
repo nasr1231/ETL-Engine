@@ -3,28 +3,28 @@
 ![DWH Architecture Diagram](Reporting-Layer/Images/pipeline-architecture.png)
 
 ## 📑 Table of Contents
+
 - [ETL-engine](#etl-engine)  
-  - [Introduction](#-introduction)
-  - [Used Technologies & Tools](#️-used-technologies--tools)
-  - [Pipeline Architecture](#️-pipeline-architecture)
-  - [Docker Setup](#-docker-setup)
-    - [Custom Dockerfile](#-custom-dockerfile)
-  - [DAG Overview](#-dag-overview)
-    - [DAG Overview: sales_pipeline](#-dag-overview-sales_pipeline)
-  - [DBT Models Transformation](#-dbt-models-transformation)
-    - [Silver Layer (Cleaned & Structured Data)](#-silver-layer-cleaned--structured-data)
-    - [Gold Layer (Analytics-ready Models)](#-gold-layer-analytics-ready-models)
+  - [Introduction](#introduction)
+  - [Used Technologies And Tools](#️used-technologies-and-tools)
+  - [Pipeline Architecture](#️pipeline-architecture)
+  - [Docker Setup](#docker-setup)
+    - [Custom Dockerfile](#custom-dockerfile)
+  - [DAG Overview](#dag-overview)
+    - [DAG Overview: sales_pipeline](#dag-overview-sales_pipeline)
+  - [DBT Models Transformation](#dbt-models-transformation)
+    - [Silver Layer (Cleaned & Structured Data)](#silver-layer-cleaned--structured-data)
+    - [Gold Layer (Analytics-ready Models)](#gold-layer-analytics-ready-models)
       - [Fact Tables](#fact-tables)
       - [Dimensions](#dimensions)
-  - [Data Catalog](#-data-catalog)
+  - [Data Catalog](#data-catalog)
     - [Overview](#overview)
     - [Bronze Layer](#bronze-layer)
     - [Silver Layer](#silver-layer)    
     - [Gold Layer](#gold-layer)      
-  - [Data Warehouse Data Modeling Schema](#️-data-warehouse-data-modeling-schema)
-  - [Data Lineage](#-data-lineage)
-  - [Reporting](#-reporting)
-  - [Contact Me](#-contact-me)
+  - [Data Warehouse Schema](#️data-warehouse-schema) 
+  - [Data Lineage](#data-lineage)
+  - [Reporting](#reporting)  
 
 ---
 
@@ -38,7 +38,7 @@ I applied **DBT (Data Build Tool)** in the ETL pipeline to transform raw data in
 
 ---
 
-## Used Technologies & Tools
+## Used Technologies And Tools
 
 - **Docker**: To containerize and standardize the development environment.  
 - **Python**: For scripting tasks and automating data processes.  
@@ -50,7 +50,7 @@ I applied **DBT (Data Build Tool)** in the ETL pipeline to transform raw data in
 
 ---
 
-## Pipeline Architecture
+## Pipeline Architecture 
 
 ![DWH Architecture Diagram](Reporting-Layer/Images/DWH-architecture.png)
 
@@ -85,7 +85,7 @@ RUN apt-get update && apt-get install -y git
 
 ---
 
-## DAG Overviewf
+## DAG Overview
 
 The ETL pipeline is orchestrated by Apache Airflow using the TaskFlow API and Bash Operators, with a focus on modular ingestion, transformation, and testing for CRM and ERP data sources.
 
@@ -383,7 +383,7 @@ This dimension extracts and enriches product information from the CRM system, jo
 
 ---
 
-##  Data Warehouse Data Modeling Schema
+## Data Warehouse Schema
 ![Data Warehouse Schema](Reporting-Layer/Images/mapping.png)
 
 ## Data Lineage
