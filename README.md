@@ -6,8 +6,8 @@
 
 - [ETL-engine](#etl-engine)  
   - [Introduction](#introduction)
-  - [Used Technologies And Tools](#️used-technologies-and-tools)
-  - [Pipeline Architecture](#️pipeline-architecture)
+  - [Technologies Used And Tools](#technologies-used-and-tools)
+  - [Pipeline Architecture](#pipeline-architecture)
   - [Docker Setup](#docker-setup)
     - [Custom Dockerfile](#custom-dockerfile)
   - [DAG Overview](#dag-overview)
@@ -22,7 +22,7 @@
     - [Bronze Layer](#bronze-layer)
     - [Silver Layer](#silver-layer)    
     - [Gold Layer](#gold-layer)      
-  - [Data Warehouse Schema](#️data-warehouse-schema) 
+  - [Data Warehouse Schema](#data-warehouse-schema) 
   - [Data Lineage](#data-lineage)
   - [Reporting](#reporting)  
 
@@ -38,7 +38,7 @@ I applied **DBT (Data Build Tool)** in the ETL pipeline to transform raw data in
 
 ---
 
-## Used Technologies And Tools
+## Technologies Used And Tools
 
 - **Docker**: To containerize and standardize the development environment.  
 - **Python**: For scripting tasks and automating data processes.  
@@ -50,7 +50,7 @@ I applied **DBT (Data Build Tool)** in the ETL pipeline to transform raw data in
 
 ---
 
-## Pipeline Architecture 
+## Pipeline Architecture
 
 ![DWH Architecture Diagram](Reporting-Layer/Images/DWH-architecture.png)
 
