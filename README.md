@@ -3,7 +3,7 @@
 ![DWH Architecture Diagram](Reporting-Layer/Images/pipeline-architecture.png)
 
 ## 📑 Table of Contents
-- [ETL-engine](#etl-engine)
+- [ETL-engine](#etl-engine)  
   - [Introduction](#-introduction)
   - [Used Technologies & Tools](#️-used-technologies--tools)
   - [Pipeline Architecture](#️-pipeline-architecture)
@@ -17,9 +17,14 @@
       - [Fact Tables](#fact-tables)
       - [Dimensions](#dimensions)
   - [Data Catalog](#-data-catalog)
+    - [Overview](#overview)
+    - [Bronze Layer](#bronze-layer)
+    - [Silver Layer](#silver-layer)    
+    - [Gold Layer](#gold-layer)      
   - [Data Warehouse Data Modeling Schema](#️-data-warehouse-data-modeling-schema)
   - [Data Lineage](#-data-lineage)
   - [Reporting](#-reporting)
+  - [Contact Me](#-contact-me)
 
 ---
 
@@ -54,7 +59,7 @@ I applied **DBT (Data Build Tool)** in the ETL pipeline to transform raw data in
 ## Docker Setup 
 To ensure consistency, reusability, and easy environment setup across all tools used in this project, I utilized Docker and Docker Compose to build a fully integrated ETL development environment.
 
-### 🔧 Custom Dockerfile
+### Custom Dockerfile
 A custom Docker image `engine-airflow-custom:latest` was created based on apache/airflow:2.10.4 to include all necessary libraries used in the ETL pipeline and DBT transformations:
 
 ```dockerfile
@@ -74,12 +79,13 @@ USER root
 RUN apt-get update && apt-get install -y git
 ```
 
-For detailed settings and the full configuration for `volumes`, `Networks`, and the working tools, please refer to the docker-compose.yml file in the repository here: 
-[docker compose file](airflow/docker-compose.yml)
+
+
+> 📁 For detailed settings and the full configuration for `volumes`, `Networks`, and the working tools, please refer to the `docker-compose.yml` file in the repository here: [docker compose file](airflow/docker-compose.yml)
 
 ---
 
-## DAG Overview
+## DAG Overviewf
 
 The ETL pipeline is orchestrated by Apache Airflow using the TaskFlow API and Bash Operators, with a focus on modular ingestion, transformation, and testing for CRM and ERP data sources.
 
@@ -87,7 +93,7 @@ The ETL pipeline is orchestrated by Apache Airflow using the TaskFlow API and Ba
 
 ![ETL DAG](Reporting-Layer/Images/min-dag-graph.png)
 
-### 🔧 DAG Overview: sales_pipeline
+### DAG Overview: sales_pipeline
 This DAG is responsible for extracting, transforming, and loading sales-related data into a PostgreSQL database, then applying DBT models to transform the data into clean dimensional layers.
 See More: [Pipeline.py](airflow/dags/pipeline.py)
 
@@ -287,9 +293,9 @@ WHERE date_value IS NOT NULL OR date_key IS NOT NULL
 
 ### Overview
 
-The **Data Catalog** serves as a centralized document that documents all datasets processed within the ETL engine. It provides metadata for every table across the three standardized layers of the Medallion Architecture: **Bronze**, **Silver**, and **Gold**.
+The **Data Catalog** serves as a centralized document that documents all datasets processed within the ETL engine. It provides metadata for every table across the three standardized layers of the Medallion Architecture: **`Bronze`**,**`Silver`**, and **`Gold`**.
 
-- **Bronze Layer**: Raw, ingested data from CRM and ERP systems. It contains semi-structured or unprocessed records as they arrive from source systems, offering full data traceability and recovery capabilities.
+- **Bronze Layer**: Raw, ingested data from `CRM` and `ERP` systems. It contains semi-structured or unprocessed records as they arrive from source systems, offering full data traceability and recovery capabilities.
 - **Silver Layer**: Cleaned and transformed datasets. Here, data is deduplicated, typed, and structured for analytical readiness, providing business-friendly formats.
 - **Gold Layer**: Business-level aggregated models. This includes fact and dimension tables that are optimized for dashboards, reporting, and downstream analytics.
 
@@ -300,7 +306,7 @@ The **Bronze Layer** is the raw data layer. It stores data exactly as received f
 #### ` crm_cust_info `
 - **Description**: CRM Customer Raw Data
 - **Refresh Rate**: Full Load
-- **Source**: CRM System
+- **Source**: `CRM System`
 - **Columns**:
 
 | Column Name        | Data Type            | Description                                      |
@@ -316,7 +322,7 @@ The **Bronze Layer** is the raw data layer. It stores data exactly as received f
 #### `erp_cust_az12`
 - **Description**: ERP Customer Raw Data
 - **Refresh Rate**: Full Load
-- **Source**: ERP System
+- **Source**: `ERP System`
 - **Columns**:
 
 | Column Name | Data Type         | Description                                              |
@@ -332,9 +338,8 @@ The **Silver Layer** represents the cleaned and refined version of the raw data 
 #### `crm_sales_details`
 - **Description**: Cleaned, standardized, and formatted sales order from the bronze layer
 - **Refresh Rate**: daily
-- **Source**: bronze.crm_sales_details
+- **Source**: `bronze.crm_sales_details`
 - **Columns**:
-
 
 | Column Name     | Data Type              | Description                                                                 |
 |-----------------|------------------------|-----------------------------------------------------------------------------|
@@ -374,12 +379,11 @@ This dimension extracts and enriches product information from the CRM system, jo
 | `start_date`    | `date`            | Start date of the product's lifecycle.                                      |
 | `maintenance`   | `varchar(10)`| Indicates if the product requires maintenance (from ERP).                  |
 
-
-This catalog acts as documentation to investigate all the layers, tables and the relations between each one and the attributes of each table. [See More](Docs/data-catalog.md)
+> 📁 This catalog acts as documentation to investigate all the layers, tables, and the relations between each one and the attributes of each table. The full `Data Catalog` file can be found: [Here](Docs/data-catalog.md).
 
 ---
 
-## Data Warehouse Data Modeling Schema
+##  Data Warehouse Data Modeling Schema
 ![Data Warehouse Schema](Reporting-Layer/Images/mapping.png)
 
 ## Data Lineage
