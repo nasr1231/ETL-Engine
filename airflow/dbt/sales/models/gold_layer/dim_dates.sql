@@ -1,11 +1,11 @@
 
 
 WITH dates AS (
-    SELECT order_date AS ord_date_value FROM{{source('ready_data', 'crm_sales_details')}}
+    SELECT order_date AS ord_date_value FROM{{ref('crm_sales_details')}}
     UNION 
-    SELECT ship_date FROM {{source('ready_data', 'crm_sales_details')}}
+    SELECT ship_date FROM {{ref('crm_sales_details')}}
     UNION 
-    SELECT due_date FROM{{source('ready_data', 'crm_sales_details')}}
+    SELECT due_date FROM{{ref('crm_sales_details')}}
 ),
 date_dim_cte AS (
     SELECT  

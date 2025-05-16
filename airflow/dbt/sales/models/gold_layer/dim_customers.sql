@@ -1,7 +1,6 @@
 
 WITH customer_info AS (
-    SELECT 
-        ROW_NUMBER() OVER (ORDER BY crm_cust.ID) AS customer_number,
+    SELECT         
         crm_cust.ID as customer_id,
         crm_cust.customer_key,
         crm_cust.firstname AS first_name,
@@ -12,10 +11,10 @@ WITH customer_info AS (
         crm_cust.marital_status,
         erp_cust.bdate AS birth_date,        
         erp_loc.cntry AS country
-    FROM {{source('ready_data', 'crm_cust_info')}} AS crm_cust
-    LEFT JOIN {{source('ready_data', 'erp_customer_info')}} AS erp_cust
+    FROM {{ref('crm_cust_info')}} AS crm_cust
+    LEFT JOIN {{ref('erp_customer_info')}} AS erp_cust
     ON crm_cust.customer_key = erp_cust.cid
-    LEFT JOIN {{source('ready_data', 'erp_customer_locations')}} AS erp_loc
+    LEFT JOIN {{ref('erp_customer_locations')}} AS erp_loc
     ON crm_cust.customer_key = erp_loc.cid
 )
 

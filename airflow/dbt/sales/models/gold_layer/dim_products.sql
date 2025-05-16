@@ -12,8 +12,8 @@ WITH product_info AS (
         prd.product_cost AS cost,
         prd.start_date,
         erp.maintenance
-    FROM {{source('ready_data', 'crm_prd_info')}} AS prd
-    LEFT JOIN {{source('ready_data', 'erp_px_cat')}} AS erp
+    FROM {{ref('crm_product_info')}} AS prd
+    LEFT JOIN {{ref('erp_px_cat')}} AS erp
     ON prd.category_id = erp.id
     WHERE prd.end_date IS NULL
 )

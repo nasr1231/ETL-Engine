@@ -11,7 +11,7 @@ WITH fact_sales AS(
         sls.quantity,
         sls.unit_price
 
-    FROM {{source('ready_data', 'crm_sales_details')}} AS sls    
+    FROM {{ref('crm_sales_details')}} AS sls    
     LEFT JOIN {{ref('dim_customers')}} AS cust   
         ON sls.customer_id = cust.customer_id
     LEFT JOIN {{ref('dim_products')}} AS prd   

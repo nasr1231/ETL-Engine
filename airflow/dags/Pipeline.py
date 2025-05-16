@@ -107,7 +107,7 @@ with DAG(
     with TaskGroup('silver_layer_tranform') as transform_data :
         models = [
             'crm_cust_info',
-            'crm_prd_info',
+            'crm_product_info',
             'crm_sales_details',
             'erp_customer_info',
             'erp_customer_locations',
@@ -134,10 +134,7 @@ with DAG(
             dbt_load_task = BashOperator(
                 task_id = f'{model}',
                 bash_command=f'dbt run --profiles-dir /home/airflow/dbt --project-dir /home/airflow/dbt/sales --models {model}'                    
-            ) 
-            
-            
-
+            )                     
                         
         for model in models:
             dbt_test_task = BashOperator(

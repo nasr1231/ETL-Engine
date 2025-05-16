@@ -1,6 +1,6 @@
 
 models:
-  - name: crm_prd_info
+  - name: crm_product_info
     description: "Products info model cleans and transforms product details from the raw data source."
     config:
       unique_key: prd_id
