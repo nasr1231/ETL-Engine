@@ -390,7 +390,23 @@ This dimension extracts and enriches product information from the CRM system, jo
 ![Data Lineage](Reporting-Layer/Images/data-lineage.png)
 
 ## Reporting
-*Coming Soon*
+
+### Sales Dashboard Report (2010-2014)
+Overview: The ETL pipeline dashboard summarizes sales performance from 2010 to 2014, with total revenue of $146.78M from 18.84K customers (avg. $7.94K/customer).
+  -	Top Markets: Australia ($45.3M) and the UK ($16.96M) show strong purchasing power and reflecting high customer purchasing power.
+  -	U.S. Performance: U.S. sales reached $45.81M, but average customer spend is lower, indicating weaker purchasing power.
+  -	Demographics: The 30-34 age group is the largest segment (17.5%), driving significant sales.
+  -	Categories: Components lead sales, while clothing accessories lag, indicating underperformance.
+
+For more insights and key findings from the 2010-2014 sales dashboard, please refer to [Sales Report](Reporting-Layer)
+
+![Summary Dashboard](Reporting-Layer/Summary.jpg)
+
+![Sales Dashboard](Reporting-Layer/Sales.jpg)
+
+![Products Dashboard](Reporting-Layer/Products.jpg)
+
+![Customers Dashboard](Reporting-Layer/Customers.jpg)
 
 If you have any questions or need clarification on anything in the project, feel free to reach out! I'd be more than happy to help and would love to assist you with any queries.
 
