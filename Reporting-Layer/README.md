@@ -8,3 +8,19 @@ Overview: The ETL pipeline dashboard summarizes sales performance from 2010 to 2
   - Categories: Components lead sales, while clothing accessories lag, indicating underperformance.
 
 Conclusion: Focus marketing on the 25-34 demographic and boost clothing accessory sales to enhance revenue, particularly in the U.S., to strengthen purchasing power.
+
+---
+
+## Dashboards
+
+### Business Summary
+![Business Summary](Summary.jpg)
+
+### Sales Dashboard
+![Business Summary](Sales.jpg)
+
+### Customers Dashboard
+![Business Summary](Customers.jpg)
+
+### Products Dashboard
+![Business Summary](Products.jpg)
