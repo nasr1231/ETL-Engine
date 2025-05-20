@@ -121,7 +121,7 @@ schedule_interval = None
 
 **dbt models transformed:**
 - `crm_cust_info`
-- `crm_prd_info`
+- `crm_product_info`
 - `crm_sales_details`
 - `erp_customer_info`
 - `erp_customer_locations`
